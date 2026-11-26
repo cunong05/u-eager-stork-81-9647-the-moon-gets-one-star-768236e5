@@ -1,27 +1,37 @@
-#!/usr/bin/env python3
-"""The Moon Gets One Star — make.fun bounty entry.
+"""A tiny one-line review generator.
 
-Writes one one-star review of the Moon to /output/entry.txt (outDir is the literal "/output", per the kit).
+Running this script produces the short review text for the bounty and
+stores it in a file, so the entry can be checked and submitted as-is.
 """
 
-import os
+from pathlib import Path
 
-# One star, earned nightly.
-ENTRY = "1 star. Only works nights, vanishes for a week every month, and still floods my beach twice a day. Would not recommend."
 
-OUT_DIR = "/output"
-OUT_PATH = os.path.join(OUT_DIR, "entry.txt")
+# The wording below is the whole submission, kept as one plain string.
+REVIEW_TEXT = "1 star. Only works nights, vanishes for a week every month, and still floods my beach twice a day. Would not recommend."
+
+OUTPUT_PATH = Path("/output/entry.txt")
 
 
 def main() -> None:
-    entry = ENTRY.strip()
-    assert entry, "entry must not be empty"
-    assert "\n" not in entry, "entry must be a single line"
-    assert 1 <= len(entry) <= 120, f"entry must be 1-120 chars, got {len(entry)}"
-    os.makedirs(OUT_DIR, exist_ok=True)
-    with open(OUT_PATH, "w", encoding="utf-8") as f:
-        f.write(entry)
-    print(f"Wrote {len(entry)} characters to {OUT_PATH}")
+    review = REVIEW_TEXT.strip()
+
+    if not review:
+        raise SystemExit("Error: the review text is empty.")
+
+    if "\n" in review or "\r" in review:
+        raise SystemExit("Error: the review must fit on a single line.")
+
+    if not 1 <= len(review) <= 120:
+        raise SystemExit(
+            f"Error: the review has {len(review)} characters, "
+            "but it must be between 1 and 120 characters long."
+        )
+
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_PATH.write_text(review, encoding="utf-8")
+
+    print(len(review))
 
 
 if __name__ == "__main__":
